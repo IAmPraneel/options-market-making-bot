@@ -1,0 +1,36 @@
+# storing the options data to csv in data folder 
+
+
+import yfinance as yf
+import pandas as pd
+import os
+
+ticker = "MSFT"
+
+def fetch_options_data(symbol, date):
+    stock = yf.Ticker(symbol)
+
+    options_data = stock.option_chain(date)
+    calls = options_data.calls
+    puts = options_data.puts
+    
+    # Convert calls and puts DataFrame to include 'expiration' column
+    calls['expiration'] = date
+    puts['expiration'] = date
+    
+    # Save to CSV
+    os.makedirs('data', exist_ok=True)  # Create 'data' folder if it doesn't exist
+    calls.to_csv(f"data/{symbol}_calls_{date}.csv", index=False)
+    puts.to_csv(f"data/{symbol}_puts_{date}.csv", index=False)
+
+    print(f"Calls and Puts data saved for {symbol} with expiration date {date}")
+
+def avai_options(symbol):
+    stock = yf.Ticker(symbol)
+    options_dates = stock.options  # Get available expiration dates
+    return options_dates
+
+list_expiration = avai_options(ticker)
+
+# Fetch options data for the first expiration date
+fetch_options_data(ticker, list_expiration[0])
